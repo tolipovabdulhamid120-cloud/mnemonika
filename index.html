@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Xotira Saroyi</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#14122b;--bg2:#241d52;--card:#ffffff12;--line:#ffffff1f;--tx:#f4f3ff;--mut:#a9a5d6;--vio:#7c6cf0;--mint:#3ddc97;--gold:#ffc857;--red:#ff6b7a;--f:'Unbounded',system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{background:radial-gradient(900px 500px at 80% -10%,#5b46d655,transparent),radial-gradient(700px 500px at -10% 110%,#3ddc9722,transparent),var(--bg);background-attachment:fixed}
+#app{max-width:520px;margin:auto;padding:18px 16px calc(28px + env(safe-area-inset-bottom,0px));padding-top:calc(18px + env(safe-area-inset-top,0px))}
+h1,h2,h3{font-family:var(--f);margin:0;font-weight:700}
+h1{font-size:22px}h2{font-size:19px}h3{font-size:15px}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.av{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--vio),var(--mint));display:grid;place-items:center;font:700 18px var(--f);color:#14122b}
+.mut{color:var(--mut);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.st{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+.st b{display:block;font:700 20px var(--f)}
+.ring{height:8px;border-radius:8px;background:var(--line);overflow:hidden;margin:6px 0 20px}
+.ring i{display:block;height:100%;background:linear-gradient(90deg,var(--vio),var(--mint));border-radius:8px;transition:width .6s}
+.ex{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:18px;padding:14px;margin-bottom:10px;font:inherit;cursor:pointer;transition:transform .15s,border-color .15s}
+.ex:active{transform:scale(.97);border-color:var(--vio)}
+.ic{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:#7c6cf033}
+.ex .t{flex:1}.ex .t b{display:block}
+.stars{letter-spacing:2px;color:var(--gold);font-size:15px}.stars s{color:#ffffff30;text-decoration:none}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:15px;font:700 15px var(--f);color:#14122b;background:linear-gradient(135deg,var(--mint),#8af0c3);cursor:pointer;margin-top:14px}
+.btn.g{background:var(--card);color:var(--tx);border:1px solid var(--line)}
+.btn:active{transform:scale(.97)}
+.back{background:none;border:0;color:var(--mut);font:inherit;padding:6px 0;margin-bottom:8px;cursor:pointer}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px 18px;text-align:center;margin-top:10px}
+.big{font:700 clamp(30px,10vw,46px)/1.2 var(--f);letter-spacing:.12em;word-break:break-all}
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.chip{background:#7c6cf033;border:1px solid #7c6cf088;border-radius:14px;padding:10px 16px;font:500 17px var(--f);animation:pop .4s both}
+.pair{display:flex;justify-content:center;align-items:center;gap:10px;padding:9px 0;font:500 17px var(--f);border-bottom:1px solid var(--line)}
+.pair:last-child{border:0}.pair em{color:var(--gold);font-style:normal}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.bar{height:10px;background:var(--line);border-radius:10px;overflow:hidden;margin:18px 0 4px}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--gold),var(--red));transform-origin:left;animation:shr linear forwards}
+@keyframes shr{to{transform:scaleX(0)}}
+input,textarea,select{width:100%;background:#0000003d;border:1px solid var(--line);border-radius:14px;color:var(--tx);padding:14px;font:inherit;margin-top:6px;outline:0}
+input:focus,textarea:focus,select:focus{border-color:var(--vio)}
+textarea{min-height:110px;resize:vertical}
+label{display:block;margin-top:14px;color:var(--mut);font-size:13px}
+.opt{display:block;width:100%;margin-top:10px;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--tx);font:500 16px var(--f);cursor:pointer}
+.opt.ok{background:#3ddc9733;border-color:var(--mint)}.opt.no{background:#ff6b7a33;border-color:var(--red)}
+.ok{color:var(--mint)}.no{color:var(--red)}
+.score{font:700 54px var(--f);margin:6px 0}
+.star-big{font-size:42px;color:var(--gold);letter-spacing:6px}.star-big s{color:#ffffff30;text-decoration:none}
+.hint{background:#ffc85722;border:1px solid #ffc85755;border-radius:14px;padding:10px 12px;font-size:13px;margin-top:12px}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--mint);color:#14122b;padding:10px 18px;border-radius:14px;font-weight:700}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition:none!important}}
+</style></head>
+<body><div id="app"></div>
+<script>
+/* ====== SOZLAMALAR ====== */
+const CFG={
+ firebase:{
+  apiKey:"AIzaSyDtApQOCcZ2xyw1QwkWrXASlHpjBpyJRcE",
+  authDomain:"mnemonika-b1415.firebaseapp.com",
+  projectId:"mnemonika-b1415",
+  storageBucket:"mnemonika-b1415.firebasestorage.app",
+  messagingSenderId:"141202609376",
+  appId:"1:141202609376:web:acc848a906f8606ef3ec85"
+ },
+ admins:[8081723573] // O'z Telegram ID raqamingizni yozing, masalan [123456789]
+};
+/* ======================== */
+const tg=window.Telegram&&Telegram.WebApp;if(tg){tg.ready();tg.expand();try{tg.setHeaderColor('#14122b');tg.setBackgroundColor('#14122b')}catch(e){}}
+const U=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)||{id:0,first_name:"Mehmon"};
+let db=null;try{if(CFG.firebase.projectId){firebase.initializeApp(CFG.firebase);db=firebase.firestore()}}catch(e){console.warn(e)}
+const $=s=>document.querySelector(s),A=$('#app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hap=t=>{try{tg.HapticFeedback.notificationOccurred(t)}catch(e){}};
+const isAdmin=CFG.admins.includes(U.id)||(!tg&&!CFG.admins.length);
+const SEED=[
+ {id:'s1',type:'num',title:'Raqamlar: 4 xonali',level:1,data:{digits:4,seconds:6}},
+ {id:'s2',type:'words',title:'Mevalar ro‘yxati',level:1,data:{seconds:15,words:['olma','anor','behi','uzum','nok','shaftoli']}},
+ {id:'s3',type:'pairs',title:'Davlat – poytaxt',level:2,data:{seconds:25,pairs:[['Yaponiya','Tokio'],['Misr','Qohira'],['Kanada','Ottava'],['Braziliya','Braziliya'],['Fransiya','Parij']]}},
+ {id:'s4',type:'num',title:'Raqamlar: 7 xonali',level:2,data:{digits:7,seconds:9}},
+ {id:'s5',type:'words',title:'Uy buyumlari (saroy usuli)',level:3,data:{seconds:20,words:['stol','lampa','kitob','soat','kalit','daryo','qalam','oyna']}},
+ {id:'s6',type:'num',title:'Raqamlar: 10 xonali',level:3,data:{digits:10,seconds:14}}
+];
+const ICON={num:'🔢',words:'🧠',pairs:'🔗'};
+let EX=[],P={xp:0,done:{},streak:0,last:''};
+const LS=(k,v)=>{try{return v===undefined?JSON.parse(localStorage.getItem(k)):localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}};
+async function load(){
+ let custom=[];
+ try{
+  if(db){
+   const q=await db.collection('exercises').orderBy('order').get();q.forEach(d=>custom.push({id:d.id,...d.data()}));
+   const p=await db.collection('users').doc(String(U.id)).get();if(p.exists)P={...P,...p.data()};
+  }else{custom=LS('mx')||[];P={...P,...(LS('mp')||{})}}
+ }catch(e){console.warn(e);custom=LS('mx')||[];P={...P,...(LS('mp')||{})}}
+ EX=SEED.concat(custom);
+}
+async function saveP(){LS('mp',P);if(db)try{await db.collection('users').doc(String(U.id)).set({...P,name:U.first_name||''},{merge:true})}catch(e){console.warn(e)}}
+const stars=n=>`<span class="stars">${'★'.repeat(n)}<s>${'★'.repeat(3-n)}</s></span>`;
+const sh=a=>a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+
+function home(){
+ const n=EX.filter(e=>P.done[e.id]>0).length,pc=EX.length?Math.round(n/EX.length*100):0;
+ A.innerHTML=`<div class="top"><div class="av">${esc((U.first_name||'M')[0])}</div><div><h1>Xotira Saroyi</h1><div class="mut">Salom, ${esc(U.first_name||'do‘st')}!</div></div></div>
+ <div class="stats"><div class="st"><b>${P.xp}</b><span class="mut">XP</span></div><div class="st"><b>🔥${P.streak}</b><span class="mut">kun ketma-ket</span></div><div class="st"><b>${n}/${EX.length}</b><span class="mut">mashq</span></div></div>
+ <div class="ring"><i style="width:${pc}%"></i></div>
+ <h3 style="margin-bottom:12px">Mashqlar</h3>
+ ${EX.map((e,i)=>`<button class="ex" data-i="${i}"><div class="ic">${ICON[e.type]||'⭐'}</div><div class="t"><b>${esc(e.title)}</b><span class="mut">${e.level||1}-daraja</span></div>${stars(P.done[e.id]||0)}</button>`).join('')}
+ ${isAdmin?'<button class="btn g" id="adm">＋ Yangi mashq qo‘shish</button>':''}`;
+ A.querySelectorAll('.ex').forEach(b=>b.onclick=()=>play(EX[b.dataset.i]));
+ const a=$('#adm');if(a)a.onclick=admin;
+}
+function head(t){return `<button class="back" id="bk">‹ Orqaga</button><h2>${esc(t)}</h2>`}
+function bindBack(){const b=$('#bk');if(b)b.onclick=home}
+
+function play(ex){
+ const d=ex.data;let target,body;
+ if(ex.type==='num'){target=Array.from({length:d.digits},()=>Math.floor(Math.random()*10)).join('');body=`<div class="big">${target.replace(/(\d{3})(?=\d)/g,'$1 ')}</div>`}
+ else if(ex.type==='words'){target=d.words;body=`<div class="chips">${d.words.map((w,i)=>`<div class="chip" style="animation-delay:${i*.08}s">${esc(w)}</div>`).join('')}</div>`}
+ else{target=d.pairs;body=d.pairs.map(p=>`<div class="pair">${esc(p[0])} <em>⇄</em> ${esc(p[1])}</div>`).join('')}
+ const sec=d.seconds||10;let timer;
+ A.innerHTML=head(ex.title)+`<p class="mut">Yodlang! Vaqt tugagach yoki tayyor bo‘lsangiz, tugmani bosing.</p><div class="stage">${body}</div><div class="bar"><i style="animation-duration:${sec}s"></i></div><button class="btn" id="go">Tayyorman</button>`;
+ bindBack();const go=()=>{clearTimeout(timer);recall(ex,target)};
+ $('#go').onclick=go;timer=setTimeout(go,sec*1000);$('#bk').onclick=()=>{clearTimeout(timer);home()};
+}
+function recall(ex,target){
+ if(ex.type==='pairs')return quiz(ex,target);
+ const num=ex.type==='num';
+ A.innerHTML=head(ex.title)+`<p class="mut">${num?'Raqamlarni tartib bilan yozing':'So‘zlarni vergul yoki probel bilan yozing'}</p><textarea id="in" ${num?'inputmode="numeric" style="min-height:70px;font:700 24px var(--f);letter-spacing:.1em"':''} autofocus></textarea><button class="btn" id="ok">Tekshirish</button>`;
+ bindBack();
+ $('#ok').onclick=()=>{
+  const v=$('#in').value;let pc,det='';
+  if(num){const a=v.replace(/\D/g,'');let r=0;for(let i=0;i<target.length;i++)if(a[i]===target[i]){r++;det+=`<span class="ok">${target[i]}</span>`}else det+=`<span class="no">${target[i]}</span>`;pc=r/target.length*100}
+  else{const g=new Set(v.toLowerCase().split(/[\s,;]+/).filter(Boolean));let r=0;det=target.map(w=>{const k=g.has(w.toLowerCase());if(k)r++;return `<span class="${k?'ok':'no'}">${esc(w)}</span>`}).join(' · ');pc=r/target.length*100}
+  result(ex,pc,det);
+ };
+}
+function quiz(ex,pairs){
+ const Q=sh(pairs);let i=0,ok=0;
+ const step=()=>{
+  if(i>=Q.length)return result(ex,ok/Q.length*100,'');
+  const [a,b]=Q[i];const wrong=sh([...new Set(pairs.map(p=>p[1]).filter(x=>x!==b))]).slice(0,3);
+  A.innerHTML=head(ex.title)+`<div class="mut">${i+1} / ${Q.length}</div><div class="stage"><div class="big" style="letter-spacing:0;font-size:28px">${esc(a)}</div><div class="mut" style="margin-top:6px">bilan juftlik qaysi?</div></div>`+sh([b,...wrong]).map(o=>`<button class="opt" data-o="${esc(o)}">${esc(o)}</button>`).join('');
+  bindBack();
+  A.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{
+   const right=btn.dataset.o===b;if(right)ok++;hap(right?'success':'error');
+   A.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(x.dataset.o===b)x.classList.add('ok')});
+   if(!right)btn.classList.add('no');i++;setTimeout(step,right?500:1100);
+  });
+ };step();
+}
+async function result(ex,pc,det){
+ pc=Math.round(pc);const s=pc>=90?3:pc>=60?2:pc>=30?1:0,old=P.done[ex.id]||0;
+ const gain=Math.max(0,s-old)*10+(old===0?5:0)+Math.round(pc/20);
+ P.xp+=gain;if(s>old)P.done[ex.id]=s;
+ const t=new Date().toISOString().slice(0,10),y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+ if(P.last!==t){P.streak=P.last===y?P.streak+1:1;P.last=t}
+ hap(s>1?'success':'warning');saveP();
+ A.innerHTML=head(ex.title)+`<div class="stage"><div class="star-big">${'★'.repeat(s)}<s>${'★'.repeat(3-s)}</s></div><div class="score">${pc}%</div><div class="mut">+${gain} XP</div>${det?`<div style="margin-top:16px;font:500 20px var(--f);line-height:1.8;word-break:break-word">${det}</div>`:''}</div>
+ <button class="btn" id="re">Qayta urinish</button><button class="btn g" id="hm">Bosh sahifa</button>`;
+ bindBack();$('#re').onclick=()=>play(ex);$('#hm').onclick=home;
+}
+
+/* ===== Admin: yangi mashq qo'shish ===== */
+function admin(){
+ A.innerHTML=head('Yangi mashq')+`
+ <label>Turi</label><select id="ty"><option value="num">Raqamlar</option><option value="words">So‘zlar ro‘yxati</option><option value="pairs">Juftliklar</option></select>
+ <label>Nomi</label><input id="ti" placeholder="Masalan: Hayvonlar">
+ <label>Daraja (1–5)</label><input id="lv" type="number" min="1" max="5" value="1">
+ <label>Yodlash vaqti (soniya)</label><input id="se" type="number" min="3" value="15">
+ <label id="lb"></label><textarea id="dt"></textarea>
+ <div class="hint" id="hn"></div><button class="btn" id="sv">Saqlash</button>`;
+ bindBack();
+ const upd=()=>{const t=$('#ty').value;$('#lb').textContent={num:'Raqamlar soni',words:'So‘zlar (vergul bilan)',pairs:'Juftliklar (har qatorda: so‘z=javob)'}[t];
+  $('#hn').textContent={num:'Raqamlar tasodifiy yaratiladi. Masalan: 8',words:'Kamida 3 ta so‘z: it, mushuk, ot, sigir',pairs:'Kamida 4 qator: Italiya=Rim'}[t];$('#dt').rows=t==='num'?1:6};
+ $('#ty').onchange=upd;upd();
+ $('#sv').onclick=async()=>{
+  const t=$('#ty').value,raw=$('#dt').value.trim(),title=$('#ti').value.trim(),seconds=+$('#se').value||10;let data;
+  if(!title)return toast('Nomini yozing',1);
+  if(t==='num'){const n=parseInt(raw);if(!(n>=2&&n<=30))return toast('Raqamlar soni 2–30',1);data={digits:n,seconds}}
+  else if(t==='words'){const w=raw.split(/[,\n;]+/).map(x=>x.trim()).filter(Boolean);if(w.length<3)return toast('Kamida 3 ta so‘z',1);data={words:w,seconds}}
+  else{const p=raw.split('\n').map(l=>l.split('=').map(x=>x.trim())).filter(x=>x.length===2&&x[0]&&x[1]);if(p.length<4)return toast('Kamida 4 ta juftlik',1);data={pairs:p,seconds}}
+  const ex={type:t,title,level:Math.min(5,Math.max(1,+$('#lv').value||1)),data,order:Date.now()};
+  try{
+   if(db){const r=await db.collection('exercises').add(ex);ex.id=r.id}
+   else{ex.id='c'+ex.order;const c=LS('mx')||[];c.push(ex);LS('mx',c)}
+   EX.push(ex);toast('Saqlandi ✓');home();
+  }catch(e){toast('Xato: Firestore qoidalarini tekshiring',1)}
+ };
+}
+function toast(m,bad){const d=document.createElement('div');d.className='toast';if(bad)d.style.background='var(--red)';d.textContent=m;document.body.append(d);hap(bad?'error':'success');setTimeout(()=>d.remove(),2200)}
+
+A.innerHTML='<div class="stage mut">Yuklanmoqda…</div>';
+load().then(home);
+</script></body></html>
